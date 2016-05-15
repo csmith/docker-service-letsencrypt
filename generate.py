@@ -12,23 +12,30 @@ parser.add_argument('--etcd-host', help='Host to connect to etcd on', default='e
 parser.add_argument('--etcd-prefix', help='Prefix to use when retrieving keys from etcd', default='/docker')
 args = parser.parse_args()
 
-domains = defaultdict(set)
 fetcher = Fetcher(args.etcd_host, args.etcd_port, args.etcd_prefix)
-for container, values in fetcher.get_label('com.chameth.vhost').items():
-  parts = values.split(',')
-  domains[parts[0].strip()] |= set([] if len(parts) == 1 else parts[1:])
 
-with open('/letsencrypt/domains.txt.new', 'w') as f:
-  for domain, alts in domains.items():
-    f.write(domain)
-    if len(alts):
-      f.write(' ' + ' ' .join(alts))
-    f.write('\n')
+while True:
+  domains = defaultdict(set)
+  for container, values in fetcher.get_label('com.chameth.vhost').items():
+    parts = values.split(',')
+    domains[parts[0].strip()] |= set([] if len(parts) == 1 else parts[1:])
 
-try:
-  os.remove('/letsencrypt/domains.txt')
-except OSError:
-  pass
+  with open('/letsencrypt/domains.txt.new', 'w') as f:
+    print('Writing domains.txt...')
+    for domain, alts in domains.items():
+      print('%s [%s]' % (domain, ', '.join(alts)))
+      f.write(domain)
+      if len(alts):
+        f.write(' ' + ' ' .join(alts))
+      f.write('\n')
 
-os.rename('/letsencrypt/domains.txt.new', '/letsencrypt/domains.txt')
+  try:
+    os.remove('/letsencrypt/domains.txt')
+  except OSError:
+    pass
+
+  os.rename('/letsencrypt/domains.txt.new', '/letsencrypt/domains.txt')
+  print('Done writing domains.txt')
+
+  fetcher.wait_for_update()
 

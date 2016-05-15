@@ -49,8 +49,3 @@ docker run -d \
   --<arguments>
 ```
 
-## Current known issues
-
-* **The container performs one update and then exits.** It does not yet monitor
-  for changes to etcd.
-

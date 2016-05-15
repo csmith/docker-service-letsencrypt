@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import etcd
+import time
 
 
 class Fetcher:
@@ -19,5 +20,20 @@ class Fetcher:
 
   def get_label(self, label):
     node = self._read_recursive('/labels/%s' % label)
-    return {child.key.split('/')[-1]: child.value for child in node.children}
+    if node:
+      return {child.key.split('/')[-1]: child.value for child in node.children}
+    else:
+      return {}
+
+
+  def wait_for_update(self):
+    original_time = self._client.read(self._prefix + '/_updated').value
+    new_time = original_time
+
+    while new_time == original_time:
+      try:
+        new_time = self._client.read(self._prefix + '/_updated', wait=True).value
+      except etcd.EtcdWatchTimedOut:
+        new_time = self._client.read(self._prefix + '/_updated').value
+      time.sleep(10)
 
