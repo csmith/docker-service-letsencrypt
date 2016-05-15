@@ -35,7 +35,7 @@ while True:
     pass
 
   os.rename('/letsencrypt/domains.txt.new', '/letsencrypt/domains.txt')
-  print('Done writing domains.txt')
+  print('Done writing domains.txt.', flush=True)
 
   fetcher.wait_for_update()
 
