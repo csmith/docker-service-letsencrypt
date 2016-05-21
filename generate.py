@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 from collections import defaultdict
-from fetcher import Fetcher
 import argparse
+import etcdlib
 import os
 
 parser = argparse.ArgumentParser()
@@ -12,7 +12,7 @@ parser.add_argument('--etcd-host', help='Host to connect to etcd on', default='e
 parser.add_argument('--etcd-prefix', help='Prefix to use when retrieving keys from etcd', default='/docker')
 args = parser.parse_args()
 
-fetcher = Fetcher(args.etcd_host, args.etcd_port, args.etcd_prefix)
+fetcher = etcdlib.Connection(args.etcd_host, args.etcd_port, args.etcd_prefix)
 
 while True:
   domains = defaultdict(set)

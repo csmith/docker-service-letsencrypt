@@ -1,9 +1,5 @@
-FROM python:3.5.1-alpine 
+FROM csmith/service-reporter-lib:latest 
 MAINTAINER Chris Smith <chris87@gmail.com> 
-
-RUN \
-  pip install \
-    python-etcd
 
 COPY *.py /
 
