@@ -17,8 +17,9 @@ fetcher = etcdlib.Connection(args.etcd_host, args.etcd_port, args.etcd_prefix)
 while True:
   domains = defaultdict(set)
   for container, values in fetcher.get_label('com.chameth.vhost').items():
-    parts = values.split(',')
-    domains[parts[0].strip()] |= set([] if len(parts) == 1 else parts[1:])
+    if values:
+      parts = values.split(',')
+      domains[parts[0].strip()] |= set([] if len(parts) == 1 else parts[1:])
 
   with open('/letsencrypt/domains.txt.new', 'w') as f:
     print('Writing domains.txt...')
